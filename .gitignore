@@ -1,0 +1,9 @@
+# Dossiers de compilation de CMake
+/cmake-build-*/
+
+# Fichiers de configuration de l'IDE (CLion)
+/.idea/
+
+# Fichiers divers
+*.swp
+*~
