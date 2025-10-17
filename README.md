@@ -1,9 +1,3 @@
-Absolument ! Voici un tutoriel complet au format Markdown (`.md`). Vous pouvez l'enregistrer dans un fichier `TUTORIEL.md` à la racine de votre projet pour ne jamais l'oublier.
-
-Ce guide récapitule toutes les étapes que nous avons suivies pour créer un environnement de développement C + SDL2 robuste et professionnel sur Windows avec CLion.
-
----
-
 # Tutoriel : Configurer un Projet C avec SDL2, CLion et Git sur Windows
 
 Ce guide explique comment mettre en place un environnement de développement C pour la bibliothèque graphique SDL2 en utilisant CLion, le gestionnaire de paquets MSYS2, et Git pour le contrôle de version.
