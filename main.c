@@ -1,76 +1,132 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include "player.h"
+#include "background.h"
+#include "projectile.h"
 
-// Définir des constantes pour la taille de la fenêtre est une bonne pratique.
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 600;
+// Taille de la fenêtre
+const int WINDOW_WIDTH = 1800;
+const int WINDOW_HEIGHT = 900;
+
+// Joueur
+const float PLAYER_INITIAL_SCALE = 3.0f;
+const int PLAYER_INITIAL_RIGHT_MARGIN = 100;
+
+// Nombre max de projectiles
+#define MAX_PROJECTILES 50000
 
 int main(int argc, char* argv[]) {
-    // --- INITIALISATION ---
+    // --- Init SDL ---
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        printf("Erreur d'initialisation de la SDL: %s\n", SDL_GetError());
+        printf("Erreur SDL: %s\n", SDL_GetError());
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow(
-        "Space Shooter",                    // Titre de la fenêtre
-        SDL_WINDOWPOS_CENTERED,             // Position x centrée
-        SDL_WINDOWPOS_CENTERED,             // Position y centrée
-        WINDOW_WIDTH,                       // Largeur
-        WINDOW_HEIGHT,                      // Hauteur
-        SDL_WINDOW_SHOWN                    // Flags (fenêtre visible)
-    );
-
-    if (window == NULL) {
-        printf("Erreur de création de la fenêtre: %s\n", SDL_GetError());
+    int imgFlags = IMG_INIT_PNG;
+    if (!(IMG_Init(imgFlags) & imgFlags)) {
+        printf("Erreur SDL_image: %s\n", IMG_GetError());
         SDL_Quit();
         return 1;
     }
 
-    // On crée un "renderer", c'est notre "pinceau" pour dessiner dans la fenêtre.
+    // --- Fenêtre + Renderer ---
+    SDL_Window* window = SDL_CreateWindow("Space Shooter", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                          WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    if (!window) {
+        printf("Erreur fenêtre: %s\n", SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (renderer == NULL) {
-        printf("Erreur de création du renderer: %s\n", SDL_GetError());
+    if (!renderer) {
+        printf("Erreur renderer: %s\n", SDL_GetError());
         SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
     }
 
-    // --- BOUCLE DE JEU PRINCIPALE ---
-    int running = 1; // Un "flag" pour savoir si le jeu doit continuer à tourner.
-    SDL_Event event; // Une variable pour stocker les événements (clavier, souris, etc.)
+    // --- Fond ---
+    Background* background = background_create(renderer, WINDOW_WIDTH, WINDOW_HEIGHT);
+    if (!background) {
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        IMG_Quit();
+        SDL_Quit();
+        return 1;
+    }
+
+    // --- Joueur ---
+    float playerTargetX = (float)WINDOW_WIDTH - PLAYER_INITIAL_RIGHT_MARGIN;
+    float playerTargetY = (float)WINDOW_HEIGHT / 2.0f;
+    Player* player = player_create(renderer, playerTargetX, playerTargetY, PLAYER_INITIAL_SCALE);
+    if (!player) {
+        background_destroy(background);
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        IMG_Quit();
+        SDL_Quit();
+        return 3;
+    }
+
+    // --- Projectiles ---
+    Projectile* projectiles[MAX_PROJECTILES];
+    for (int i = 0; i < MAX_PROJECTILES; ++i) projectiles[i] = NULL;
+    int numActiveProjectiles = 0;
+
+    // --- Boucle principale ---
+    int running = 1;
+    SDL_Event event;
 
     while (running) {
-        // 1. GESTION DES ÉVÉNEMENTS
-        // On vérifie tous les événements qui se sont produits depuis la dernière frame.
+        // Événements
         while (SDL_PollEvent(&event)) {
-            // Si l'utilisateur clique sur la croix pour fermer la fenêtre...
-            if (event.type == SDL_QUIT) {
-                running = 0; // On met le flag à 0 pour quitter la boucle de jeu.
-            }
+            if (event.type == SDL_QUIT) running = 0;
         }
 
-        // 2. LOGIQUE DU JEU (Mises à jour)
-        // (Pour l'instant, il n'y a rien ici, mais c'est là que vous mettriez
-        //  le code pour déplacer le vaisseau, les tirs, etc.)
+        // Logique
+        background_update(background);
+        projectile_update_animation();
+        player_update(player, WINDOW_WIDTH, WINDOW_HEIGHT,
+                      renderer, projectiles, &numActiveProjectiles, MAX_PROJECTILES);
 
-        // 3. RENDU GRAPHIQUE
-        // On choisit une couleur de fond (un bleu nuit pour un jeu spatial !)
+        // MAJ projectiles
+        for (int i = 0; i < numActiveProjectiles;) {
+            if (projectiles[i] && projectiles[i]->active) {
+                if (!projectile_update(projectiles[i], WINDOW_WIDTH, WINDOW_HEIGHT)) {
+                    projectile_destroy(projectiles[i]);
+                    projectiles[i] = NULL;
+                    if (i < numActiveProjectiles - 1) {
+                        projectiles[i] = projectiles[numActiveProjectiles - 1];
+                        projectiles[numActiveProjectiles - 1] = NULL;
+                    }
+                    numActiveProjectiles--;
+                } else i++;
+            } else i++;
+        }
+
+        // Rendu
         SDL_SetRenderDrawColor(renderer, 16, 20, 35, 255);
-        // On efface tout l'écran avec cette couleur.
         SDL_RenderClear(renderer);
-
-        // (C'est ici que vous mettriez le code pour dessiner le vaisseau,
-        //  les ennemis, les étoiles, etc.)
-
-        // On affiche le résultat à l'écran.
+        background_draw(renderer, background, WINDOW_WIDTH, WINDOW_HEIGHT);
+        player_draw(renderer, player);
+        for (int i = 0; i < numActiveProjectiles; ++i)
+            projectile_draw(renderer, projectiles[i]);
         SDL_RenderPresent(renderer);
     }
 
-    // --- NETTOYAGE ET FERMETURE ---
-    // On détruit les objets dans l'ordre inverse de leur création.
+    // --- Nettoyage ---
+    background_destroy(background);
+    player_destroy(player);
+    for (int i = 0; i < numActiveProjectiles; ++i)
+        projectile_destroy(projectiles[i]);
+    destroySharedProjectileFrames();
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    IMG_Quit();
     SDL_Quit();
 
     return 0;

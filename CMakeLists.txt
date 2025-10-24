@@ -7,6 +7,10 @@ set(CMAKE_C_STANDARD 11)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 
-add_executable(Space_Shooter WIN32 main.c)
+add_executable(Space_Shooter main.c player.c
+        background.c
+        background.h
+        projectile.c
+        projectile.h)
 
 target_link_libraries(Space_Shooter PRIVATE SDL2::SDL2main SDL2::SDL2 SDL2_image::SDL2_image)
