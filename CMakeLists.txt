@@ -11,6 +11,8 @@ add_executable(Space_Shooter main.c player.c
         background.c
         background.h
         projectile.c
-        projectile.h)
+        projectile.h
+        enemy.c
+        enemy.h)
 
 target_link_libraries(Space_Shooter PRIVATE SDL2::SDL2main SDL2::SDL2 SDL2_image::SDL2_image)

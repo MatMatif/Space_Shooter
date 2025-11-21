@@ -17,6 +17,7 @@ Background* background_create(SDL_Renderer* renderer, int windowWidth, int windo
     bg->lastFrameTime = SDL_GetTicks();
     bg->frameWidth = 0;
     bg->frameHeight = 0;
+    bg->scrollOffsetX = 0.0f;
 
     bg->frames = (SDL_Texture**)malloc(sizeof(SDL_Texture*) * NUM_GIF_FRAMES);
     if (bg->frames == NULL) {
@@ -74,6 +75,13 @@ void background_update(Background* bg) {
         bg->currentFrame = (bg->currentFrame + 1) % bg->numFrames;
         bg->lastFrameTime = currentTime;
     }
+
+    bg->scrollOffsetX -= BACKGROUND_SCROLL_SPEED;
+
+    if (bg->scrollOffsetX <= -bg->frameWidth) {
+        bg->scrollOffsetX += bg->frameWidth;
+    }
+
 }
 
 // Dessine le fond en "tiling"
@@ -84,9 +92,10 @@ void background_draw(SDL_Renderer* renderer, const Background* bg, int windowWid
     int numTilesY = (windowHeight + bg->frameHeight - 1) / bg->frameHeight;
 
     for (int y = 0; y < numTilesY; ++y) {
-        for (int x = 0; x < numTilesX; ++x) {
+        for (int x = -1; x < numTilesX; ++x) {
+            int startX = (x * bg->frameWidth) - (int)bg->scrollOffsetX;
             SDL_Rect destRect = {
-                x * bg->frameWidth,
+                startX,
                 y * bg->frameHeight,
                 bg->frameWidth,
                 bg->frameHeight

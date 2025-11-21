@@ -12,8 +12,8 @@ typedef struct {
     Uint32 lastShotTime; // Temps du dernier tir
 } Player;
 
-#define PLAYER_SPEED 7.0f   // Vitesse du joueur
-#define FIRE_RATE_MS 200    // Délai entre deux tirs (ms)
+#define PLAYER_SPEED 7.0f
+#define FIRE_RATE_MS 200
 
 // Création du joueur
 Player* player_create(SDL_Renderer* renderer, float initialX, float initialY, float scaleFactor);

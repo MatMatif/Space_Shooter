@@ -1,4 +1,6 @@
 #include "projectile.h"
+
+#include <stdbool.h>
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,7 +85,7 @@ int projectile_update(Projectile* p, int windowWidth, int windowHeight) {
 
     p->x -= PROJECTILE_SPEED;
 
-    if (p->x + p->width < 0) { // Sorti de l’écran
+    if (p->x + p->width < 0) {
         p->active = 0;
         return 0;
     }

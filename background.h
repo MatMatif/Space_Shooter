@@ -6,6 +6,7 @@
 // Constantes de l’animation
 #define NUM_GIF_FRAMES 4 // Nombre de frames
 #define FRAME_DELAY 100  // Délai entre frames (ms)
+#define BACKGROUND_SCROLL_SPEED 2.0f
 
 // Structure du fond animé
 typedef struct {
@@ -15,6 +16,7 @@ typedef struct {
     Uint32 lastFrameTime;  // Dernier changement de frame
     int frameWidth;        // Largeur d’une frame
     int frameHeight;       // Hauteur d’une frame
+    float scrollOffsetX;   // Décalage horizontal
 } Background;
 
 // Création et chargement du fond
