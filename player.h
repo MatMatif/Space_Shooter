@@ -2,7 +2,11 @@
 #define PLAYER_H
 
 #include <SDL.h>
+#include <SDL_mixer.h>
 #include "projectile.h"
+
+extern const int NUM_LASER_SOUNDS;
+extern const int NUM_EXPLOSION_SOUNDS;
 
 // Structure du joueur
 typedef struct {
@@ -24,7 +28,7 @@ void player_destroy(Player* player);
 // Mise à jour (mouvements + tirs)
 void player_update(Player* player, int windowWidth, int windowHeight,
                    SDL_Renderer* renderer,
-                   Projectile** projectiles, int* numProjectiles, int maxProjectiles);
+                   Projectile** projectiles, int* numProjectiles, int maxProjectiles,Mix_Chunk* laserSounds[]);
 
 // Dessin du joueur
 void player_draw(SDL_Renderer* renderer, Player* player);

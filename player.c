@@ -1,7 +1,11 @@
 #include "player.h"
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+const int NUM_LASER_SOUNDS = 3;
+const int NUM_EXPLOSION_SOUNDS = 3;
 
 // Crée un joueur et charge sa texture
 Player* player_create(SDL_Renderer* renderer, float initialX, float initialY, float scaleFactor) {
@@ -52,7 +56,7 @@ void player_destroy(Player* player) {
 // Met à jour le joueur (déplacements + tirs)
 void player_update(Player* player, int windowWidth, int windowHeight,
                    SDL_Renderer* renderer,
-                   Projectile** projectiles, int* numProjectiles, int maxProjectiles) {
+                   Projectile** projectiles, int* numProjectiles, int maxProjectiles, Mix_Chunk* laserSounds[]) {
     const Uint8* state = SDL_GetKeyboardState(NULL);
 
     float dx = 0, dy = 0;
@@ -96,6 +100,9 @@ void player_update(Player* player, int windowWidth, int windowHeight,
                     (*numProjectiles)++;
                     player->lastShotTime = currentTime;
                     printf("Tir! Projectile cree. Total projectiles: %d\n", *numProjectiles);
+                    int soundIndex = rand() % NUM_LASER_SOUNDS;
+                    Mix_PlayChannel(-1, laserSounds[soundIndex], 0);
+
                 } else {
                     printf("Erreur: Impossible de creer un nouveau projectile.\n");
                 }

@@ -15,7 +15,7 @@ static Uint32 lastProjectileFrameTime = 0;
 // Chargement des textures partagées du projectile
 int loadSharedProjectileFrames(SDL_Renderer* renderer) {
     if (sharedProjectileFrames[0] == NULL) {
-        for (int i = 0; i < NUM_PROJECTILE_FRAMES; ++i) {
+         for (int i = 0; i < NUM_PROJECTILE_FRAMES; ++i) {
             char filename[256];
             sprintf(filename, "assets/projectile/laser_%02d.png", i);
 
