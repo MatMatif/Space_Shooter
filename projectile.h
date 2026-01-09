@@ -3,34 +3,33 @@
 
 #include <SDL2/SDL.h>
 
-// Constantes du projectile
-#define PROJECTILE_SPEED 15.0f
-#define NUM_PROJECTILE_FRAMES 2      // Nombre d’images d’animation
-#define PROJECTILE_FRAME_DELAY 100   // Délai entre chaque frame (ms)
+// Configuration du tir
+#define PROJECTILE_SPEED 15.0f          // Vitesse de déplacement (pixels par frame)
+#define NUM_PROJECTILE_FRAMES 2         // Nombre d'images dans l'animation du laser
+#define PROJECTILE_FRAME_DELAY 100      // Vitesse de l'animation (en millisecondes)
 
-// Structure d’un projectile
 typedef struct {
-    float x, y;
-    int width, height;
-    int active; // Actif ou non
+    float x, y;            // Position précise
+    int width, height;     // Dimensions pour la collision et l'affichage
+    int active;            // 1 = en vol, 0 = détruit ou hors écran (prêt à être free)
 } Projectile;
 
-// Création d’un projectile
+// Crée une nouvelle instance de projectile à la position (x, y)
 Projectile* projectile_create(SDL_Renderer* renderer, float x, float y);
 
-// Mise à jour de la position
+// Déplace le projectile. Retourne 0 s'il sort de l'écran (doit être détruit), sinon 1.
 int projectile_update(Projectile* p, int windowWidth, int windowHeight);
 
-// Mise à jour de l’animation partagée
+// Met à jour la frame d'animation GLOBALE (à appeler une seule fois par tour de boucle)
 void projectile_update_animation();
 
-// Dessin du projectile
+// Affiche le projectile (avec rotation si nécessaire)
 void projectile_draw(SDL_Renderer* renderer, const Projectile* p);
 
-// Destruction d’un projectile
+// Libère la mémoire d'une instance de projectile
 void projectile_destroy(Projectile* p);
 
-// Libération des textures partagées
+// Libère les textures partagées (static) à la fin du jeu
 void destroySharedProjectileFrames();
 
-#endif // PROJECTILE_H
+#endif

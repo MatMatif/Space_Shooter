@@ -3,33 +3,36 @@
 
 #include <SDL2/SDL.h>
 
-// Constantes pour les ennemis
-#define ENEMY_SPEED 6.0f // Vitesse de déplacement de l'ennemi
+// Paramètres de gameplay
+#define ENEMY_SPEED 6.0f          // Vitesse de déplacement vers la droite (pixels/update)
+#define NUM_EXPLOSION_FRAMES 8    // Nombre d'images dans la séquence d'explosion
 
-// Structure représentant un ennemi
 typedef struct {
-    float x, y;
-    int width, height;
-    int active;
+    float x, y;             // Position (float pour des mouvements fluides)
+    int width, height;      // Dimensions (hitbox et affichage)
+    int active;             // 1 = vivant/visible, 0 = inactif (prêt à être free)
+
+    // Système d'animation d'explosion
+    int isExploding;        // 1 = animation en cours (ne bouge plus, joue l'anim)
+    int explosionFrame;     // Index de la frame d'explosion actuelle (0 à 7)
+    Uint32 lastFrameTime;   // Timer pour gérer la vitesse de l'animation
 } Enemy;
 
-// Charge la texture partagée pour tous les ennemis. Doit être appelée une fois.
+// --- Gestion des ressources statiques (Shared Textures) ---
+// À appeler une seule fois au début/fin du programme (pas par ennemi)
 int loadSharedEnemyTexture(SDL_Renderer* renderer);
-
-// Détruit la texture partagée des ennemis. Doit être appelée à la fin.
 void destroySharedEnemyTexture();
 
-// Crée un nouvel ennemi à une position Y aléatoire, hors de l'écran (à gauche)
+// --- Gestion des instances d'ennemis ---
 Enemy* enemy_create(int windowHeight);
 
-// Met à jour la position de l'ennemi
-// Retourne 1 si l'ennemi est toujours actif, 0 s'il est hors écran
+// Retourne 1 si l'ennemi est toujours actif, 0 s'il doit être supprimé (sortie d'écran ou fin d'explosion)
 int enemy_update(Enemy* e, int windowWidth);
 
-// Dessine l'ennemi
 void enemy_draw(SDL_Renderer* renderer, const Enemy* e);
-
-// Détruit un ennemi et libère la mémoire
 void enemy_destroy(Enemy* e);
 
-#endif // ENEMY_H
+// Déclenche la séquence de mort
+void enemy_start_explosion(Enemy* e);
+
+#endif
