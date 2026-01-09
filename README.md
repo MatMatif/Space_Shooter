@@ -12,9 +12,9 @@ Le but est de survivre le plus longtemps possible, de gérer ses munitions et de
 
 ## 🎮 Démo du jeu
 
-![Gameplay Demo](assets/demo.gif)
-
-*(Si le GIF ne s'affiche pas, assurez-vous d'avoir ajouté un fichier .gif dans votre dossier assets)*
+<p align="center">
+  <img src="assets/demo.gif" width="100%" alt="Gameplay Demo">
+</p>
 
 ---
 
